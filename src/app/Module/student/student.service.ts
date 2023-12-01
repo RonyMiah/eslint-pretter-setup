@@ -1,25 +1,28 @@
-import { Student } from './student.interface';
-import { StudentModel } from './student.model';
-
-const createStudentIntoDB = async (student: Student) => {
-  //database query choble  mongoose er model er opore
-  const result = await StudentModel.create(student);
-  // new data return
-  // Mongoose Methode >> jeitate call kore dile data insert kore dibe/create kore dibe >>  Mongoose function use .
-  return result;
-};
+import { Student } from './student.model';
 
 const getAllStudentsFromDB = async () => {
-  const result = await StudentModel.find();
+  const result = await Student.find();
   return result;
 };
+
 const getAStudentFromDB = async (id: string) => {
-  const result = await StudentModel.findOne({ id });
+  // const result = await Student.findOne({ id });
+
+  //using aggregate
+  const result = await Student.aggregate([
+    //stage -1
+    { $match: { id: id } },
+  ]);
+  return result;
+};
+
+const deleteStudentFromDB = async (id: string) => {
+  const result = await Student.updateOne({ id }, { isDeleted: true });
   return result;
 };
 
 export const StudentServices = {
-  createStudentIntoDB,
   getAllStudentsFromDB,
   getAStudentFromDB,
+  deleteStudentFromDB,
 };
