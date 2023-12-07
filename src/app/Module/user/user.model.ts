@@ -1,13 +1,14 @@
 import { Schema, model } from 'mongoose';
-import { TUser } from './user.interface';
+import { TUser, UsertModel } from './user.interface';
 import config from '../../config';
 import bcrypt from 'bcrypt';
 
-const userSchema = new Schema<TUser>(
+const userSchema = new Schema<TUser, UsertModel>(
   {
     id: {
       type: String,
       required: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -61,4 +62,11 @@ userSchema.post('save', function (doc, next) {
   next();
 });
 
-export const User = model<TUser>('User', userSchema);
+//instance methode create for using instance
+
+userSchema.methods.isUserExist = async (id: string) => {
+  const existingUser = await User.findOne({ id });
+  return existingUser;
+};
+
+export const User = model<TUser, UsertModel>('User', userSchema);

@@ -12,7 +12,7 @@ app.use(cors());
 //Application Route
 app.use('/api/v1', router);
 
-const test: RequestHandler = (req, res) => {
+const test: RequestHandler = async (req, res) => {
   res.send('Hello world');
 };
 

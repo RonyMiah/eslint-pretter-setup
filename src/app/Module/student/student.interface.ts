@@ -29,16 +29,18 @@ export type TStudent = {
   password: string;
   name: TUserName;
   gender: 'maile' | 'femaile' | 'other';
-  dateOfBirth?: Date;
+  dateOfBirth?: string;
   email: string;
   contactNo: string;
   emergencyContactNo: string;
-  bloodGroup?: 'A+' | 'B+' | 'AB+' | 'O+';
+  bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   permanentAddress: string;
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImg?: string;
+  admissionSemester: Types.ObjectId;
   isDeleted?: boolean;
+  academicDepartment: Types.ObjectId;
 };
 
 //for using static methode Custom made

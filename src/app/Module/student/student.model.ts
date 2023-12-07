@@ -79,7 +79,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     id: { type: String, required: [true, 'Id is required '], unique: true },
     user: {
       type: Schema.Types.ObjectId,
-      required: [true, 'User id is required'],
+      required: true,
       unique: true,
       ref: 'User', // ei User holo Model er user
     },
@@ -88,13 +88,13 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     gender: {
       type: String,
       enum: {
-        values: ['male', 'female', 'other'],
+        values: ['maile', 'femaile', 'other'],
         message: '{VALUE} is not valid gender',
       },
       required: [true, 'Gender is required'],
     },
     dateOfBirth: {
-      type: Date,
+      type: String,
     },
     email: { type: String, required: [true, 'email is required '] },
     contactNo: { type: String, required: [true, 'Contact No is required '] },
@@ -105,8 +105,8 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     bloodGroup: {
       type: String,
       enum: {
-        values: ['A+', 'B+', 'AB+', 'O+'],
-        message: '   {VALUE}  is not valid blood group',
+        values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+        message: '{VALUE}  is not valid blood group',
       },
     },
     permanentAddress: {
@@ -122,7 +122,17 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Guardian information is required'],
     },
     profileImg: { type: String },
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicSemester',
+      required: true,
+    },
     isDeleted: { type: Boolean, default: false },
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicDepartment',
+      required: true,
+    },
   },
   {
     toJSON: {
@@ -132,9 +142,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 );
 //static methode create
 //jeheto amra async function use korse so Student data pawyer jonno sheee wait korbe
-
-//Middle ware pre and post
-
 
 //Query Middleware
 studentSchema.pre('find', function (next) {
@@ -162,11 +169,10 @@ studentSchema.pre('aggregate', function (next) {
 });
 
 //virtuals
-
-studentSchema.virtual('fullname').get(function () {
-  //remember it bydefult virtual is not-active or on >> we can trun on virtual  >> on korer jonno amra schema er modde }braket er pore , {toJSON :{virtuals: true}}
-  return `${this.name} and age is YO YO beta `;
-});
+// studentSchema.virtual('fullname').get(function () {
+//   //remember it bydefult virtual is not-active or on >> we can trun on virtual  >> on korer jonno amra schema er modde }braket er pore , {toJSON :{virtuals: true}}
+//   return `${this.name} and age is YO YO beta `;
+// });
 
 studentSchema.statics.isUserExists = async (id: string) => {
   const existingUser = Student.findOne({ id });
@@ -175,11 +181,9 @@ studentSchema.statics.isUserExists = async (id: string) => {
 
 //instance methode create for using instance
 
-// studentSchema.methods.isUserExist = async (id: string) => {
-//   const existingUser = await Student.findOne({ id });
-//   return existingUser;
-// };
-
-//1st perametter er name ta database ee as a collection hisabe save hobe and name er ta plural hobe  .
+studentSchema.methods.isUserExist = async (id: string) => {
+  const existingUser = await Student.findOne({ id });
+  return existingUser;
+};
 
 export const Student = model<TStudent, StudentModel>('Student', studentSchema);

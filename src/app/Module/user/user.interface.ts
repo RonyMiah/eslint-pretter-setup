@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+import { Model } from 'mongoose';
+
 export type TUser = {
   id: string;
   password: string;
@@ -6,6 +9,10 @@ export type TUser = {
   status: 'in-progress' | 'blocked';
   isDeleted: boolean;
 };
+
+export interface UsertModel extends Model<TUser> {
+  isUserExists(id: string): Promise<TUser | null>;
+}
 
 //using partial that's why we don't needed
 
