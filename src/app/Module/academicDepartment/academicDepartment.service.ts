@@ -19,9 +19,8 @@ const getAllAcademicDepartmentFromDB = async () => {
 };
 
 const getSingleAcademicDepartmentFromDB = async (id: string) => {
-  const result = await AcademicDepartment.findById(id).populate(
-    'academicFaculty',
-  ); //make sure modeler name dite hobe not ref...;
+  const result =
+    await AcademicDepartment.findById(id).populate('academicFaculty'); //make sure modeler name dite hobe not ref...;
   return result;
 };
 

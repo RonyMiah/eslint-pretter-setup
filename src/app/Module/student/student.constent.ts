@@ -3,3 +3,4 @@ export const studentSearchableFields = [
   'name.firstName',
   'permanentAddress',
 ];
+

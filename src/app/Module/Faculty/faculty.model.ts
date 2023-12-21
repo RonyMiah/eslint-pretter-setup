@@ -30,7 +30,7 @@ const facultySchema = new Schema<TFaculty, FacultyModel>(
     },
     user: {
       type: Schema.Types.ObjectId,
-      required: true,
+      required: [true, 'User id is required'],
       unique: true,
       ref: 'User',
     },
@@ -48,7 +48,7 @@ const facultySchema = new Schema<TFaculty, FacultyModel>(
         values: Gender,
         message: '{VALUE} is not valid Gender',
       },
-      required: true,
+      required: [true, 'Gender is required'],
     },
     dateOfBirth: { type: String },
     email: {
@@ -70,7 +70,6 @@ const facultySchema = new Schema<TFaculty, FacultyModel>(
         values: BloodGroup,
         message: '{VALUE} is not a valid bood Group',
       },
-      required: true,
     },
     presentAddress: {
       type: String,
@@ -86,7 +85,7 @@ const facultySchema = new Schema<TFaculty, FacultyModel>(
     academicDepartment: {
       type: Schema.Types.ObjectId,
       required: [true, 'User id is required'],
-      ref: 'User',
+      ref: 'AcademicDepartment',
     },
     isDeleted: {
       type: Boolean,

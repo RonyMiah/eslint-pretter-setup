@@ -4,80 +4,97 @@ import AppError from '../../error/AppError';
 import httpStatus from 'http-status';
 import { User } from '../user/user.model';
 import { TStudent } from './student.interface';
-import QueryBuilder from '../../builder/QueryBuilder';
+
 import { studentSearchableFields } from './student.constent';
+import QueryBuilder from '../../builder/QueryBuilder';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-  // //query copy using spreade operator
-  // const queryObj = { ...query };
-  // // query: Record<string, unknown>
-  // const studentSearchableFields = [
-  //   'email',
-  //   'name.firstName',
-  //   'permanentAddress',
-  // ];
-  // let searchTerm = '';
-  // if (query?.searchTerm) {
-  //   searchTerm = query?.searchTerm as string;
-  // }
-  // const searchQuery = Student.find({
-  //   $or: studentSearchableFields.map((field) => ({
-  //     [field]: { $regex: searchTerm, $options: 'i' },
-  //   })),
-  // });
-  // //recharce regex in in mongoose //await mane promise ta ke resolve kore fela
-  // //Filtaring
-  // const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
-  // excludeFields.forEach((element) => delete queryObj[element]);
-  // console.log('baseQuery ', query, 'QueryObjet ', queryObj);
-  // const filterQuery = searchQuery
-  //   .find(queryObj)
-  //   .populate('admissionSemester')
-  //   .populate({
-  //     path: 'academicDepartment',
-  //     populate: {
-  //       path: 'academicFaculty',
-  //     },
+  //   //search field
+
+  //   //{email : {$regex : query.searchTerm , $option: i}}
+  //   //{presentAddress : {$regex : query.searchTerm , $option: i}}
+
+  //   //copy query obj
+  //   const queryObject = { ...query };
+
+  //   let searchTerm = ' ';
+  //   if (query.searchTerm) {
+  //     searchTerm = query.searchTerm as string;
+  //   }
+  //   const searchableQuery = Student.find({
+  //     $or: studentSearchableFields.map((field) => ({
+  //       [field]: { $regex: searchTerm, $options: 'i' },
+  //     })),
   //   });
-  // let sort = '-createdAt';
-  // if (query.sort) {
-  //   sort = query.sort as string;
-  // }
-  // // ?sort=-email //desending order sort
-  // const sortQuery = filterQuery.sort(sort);
 
-  // //pagination use Formula   >> limit =1, page =2, skip = (page-1)*limit
-  // //page=1&limit=2
-  // let page = 1;
-  // let limit = 1;
-  // let skip = 0;
-  // if (query.limit) {
-  //   limit = Number(query.limit);
-  // }
-  // if (query.page) {
-  //   page = Number(query.page);
-  //   skip = (page - 1) * limit;
-  // }
-  // const paginateQuery = sortQuery.skip(skip);
-  // const limitQuery = paginateQuery.limit(limit);
+  //   //Filtaring delete [] element
+  //   ['searchTerm', 'page', 'sort', 'limit', 'fields'].forEach(
+  //     (ele) => delete queryObject[ele],
+  //   );
 
-  // //Fields Limiting
-  // //.select
-  // //?fields=name,email
-  // //Remember query object er modde field dewya jabe na becouse its exists match kore
-  // // filter korbo select diye jeita amader lagbe oitai dakhabo
-  // let fields = '-__v';
+  //   const filterQuery = searchableQuery
+  //     .find(queryObject)
+  //     .populate('admissionSemester')
+  //     .populate({
+  //       path: 'academicDepartment',
+  //       populate: {
+  //         path: 'academicFaculty',
+  //       },
+  //     });
 
-  // if (query.fields) {
-  //   //now fields type is { fields: 'name,email' } >> remove , and added Space between name and email
-  //   fields = (query.fields as string).split(',').join(' '); //now fields :'name email'
-  // }
+  //   //sort
+  //   let sort = '-createdAt';
+  //   if (query.sort) {
+  //     sort = query?.sort as string;
+  //   }
+  //   const sortQuery = filterQuery.sort(sort);
 
-  // const fieldsQuery = await limitQuery.select(fields);
-  // return fieldsQuery;
+  //   //limit
+  //   let page = 1;
+  //   let limit = 1;
+  //   let skip = 0;
+
+  //   if (query.limit) {
+  //     limit = Number(query?.limit);
+  //   }
+  //   if (query.page) {
+  //     page = Number(query?.page);
+  //   }
+  //   if (query.skip) {
+  //     skip = (page - 1) * limit;
+  //   }
+  //   //page query
+  //   const pageQuery = sortQuery.skip(skip);
+  //   //limit query
+  //   const limitQuery = pageQuery.limit(limit);
+
+  //   //fields limiting
+  //   // fields: 'name,email' convart to ....   firlds: name email  ..
+  //   let fields = '-__v';
+  //   if (query.fields) {
+  //     fields = (query.fields as string).split(',').join(' ');
+  //   }
+  // //fields er bitore 2 ta value thakle amra select query use korbo
+  // //jei fields show kora dorkar sei fields er jonno select use korte pari
+  // //bandwidth cost komanor jonno .select methode use korte pari
+  //   const fieldQuery = await limitQuery.select(fields);
+
+  //   // console.log('base query', query);
+  //   // console.log(queryObject);
+
+  //   return fieldQuery;
 
   const studentQuery = new QueryBuilder(
-    Student.find(),query)
+    Student.find()
+      .populate('admissionSemester')
+      .populate({
+        path: 'academicDepartment',
+        populate: {
+          path: 'academicFaculty',
+        },
+      }),
+    query,
+  )
     .search(studentSearchableFields)
     .filter()
     .sort()
@@ -97,7 +114,7 @@ const getAStudentFromDB = async (id: string) => {
   //   { $match: { id: id } },
   // ]);
 
-  const result = await Student.findOne({ id })
+  const result = await Student.findById(id)
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
@@ -115,39 +132,35 @@ const deleteStudentFromDB = async (id: string) => {
     session.startTransaction();
 
     //check isUser exist using Static Methode
-    const studentExist = await Student.isUserExists(id);
+    // const studentExist = await Student.isUserExists(id);
 
-    if (studentExist) {
-      //Delete student
-      const deletedStudent = await Student.findOneAndUpdate(
-        { id },
-        { isDeleted: true },
-        { new: true, session },
-      );
+    //Delete student
+    const deletedStudent = await Student.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true, session },
+    );
 
-      if (!deletedStudent) {
-        throw new AppError(httpStatus.BAD_REQUEST, 'Fail to deleted Student');
-      }
-      return deletedStudent;
+    if (!deletedStudent) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Fail to deleted Student');
     }
 
-    //Now Delete User  //is User Exist ?
-    const userExist = await User.isUserExists(id);
-    if (userExist) {
-      const deletedUser = await User.findOneAndUpdate(
-        { id },
-        { isDeleted: true },
-        { new: true, session },
-      );
+    //get user _id from DeletedFaculty
+    const userId = deletedStudent?.user;
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
+      { isDeleted: true },
+      { new: true, session },
+    );
 
-      if (!deletedUser) {
-        throw new AppError(httpStatus.BAD_REQUEST, 'Fail to deleted User');
-      }
-      return deletedUser;
+    if (!deletedUser) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Fail to deleted User');
     }
+
     // ei stage mane success
     await session.commitTransaction();
     await session.endSession();
+    return deletedUser;
   } catch (error) {
     await session.abortTransaction();
     await session.endSession();
@@ -177,7 +190,7 @@ const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
   // console.log(modifiedUpdatedData);
-  const result = await Student.findOneAndUpdate({ id }, modifiedUpdatedData, {
+  const result = await Student.findByIdAndUpdate(id, modifiedUpdatedData, {
     new: true,
     runValidators: true,
   });

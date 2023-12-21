@@ -169,10 +169,10 @@ studentSchema.pre('aggregate', function (next) {
 });
 
 //virtuals
-// studentSchema.virtual('fullname').get(function () {
-//   //remember it bydefult virtual is not-active or on >> we can trun on virtual  >> on korer jonno amra schema er modde }braket er pore , {toJSON :{virtuals: true}}
-//   return `${this.name} and age is YO YO beta `;
-// });
+studentSchema.virtual('fullname').get(function () {
+  //remember it bydefult virtual is not-active or on >> we can trun on virtual  >> on korer jonno amra schema er modde }braket er pore , {toJSON :{virtuals: true}}
+  return `${this?.name?.firstName} ${this?.name?.middleName} ${this?.name?.lastName}  `;
+});
 
 studentSchema.statics.isUserExists = async (id: string) => {
   const existingUser = Student.findOne({ id });
