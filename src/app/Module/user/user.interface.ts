@@ -1,23 +1,29 @@
 /* eslint-disable no-unused-vars */
 import { Model } from 'mongoose';
+import { USER_ROLE } from './user.constant';
 
-export type TUser = {
+export interface TUser {
   id: string;
   password: string;
   needsPasswordChange: boolean;
+  passwordChangeAt?: Date;
   role: 'admin' | 'student' | 'faculty';
   status: 'in-progress' | 'blocked';
   isDeleted: boolean;
-};
+}
 
 export interface UsertModel extends Model<TUser> {
   isUserExists(id: string): Promise<TUser | null>;
-}
+  isPasswordMatch(
+    plaintextPassword: string,
+    hasedPassword: string,
+  ): Promise<boolean>;
+  isBlockedUser(user: TUser): Promise<boolean>;
+  isDeleted(user: TUser): Promise<boolean>;
+  isJWTIssuedBeforePasswordChanged(
+    passwordChangeTimeStamp: Date,
+    jwtIssouedTimestamp: number,
+  ): boolean;
+} 
 
-//using partial that's why we don't needed
-
-// export type NewUser = {
-//   password: string;
-//   role: string;
-//   id: string;
-// };
+export type TUserRole = keyof typeof USER_ROLE;

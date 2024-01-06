@@ -13,10 +13,14 @@ const userSchema = new Schema<TUser, UsertModel>(
     password: {
       type: String,
       required: true,
+      select: 0,
     },
     needsPasswordChange: {
       type: Boolean,
       default: true,
+    },
+    passwordChangeAt: {
+      type: Date,
     },
     role: {
       type: String,
@@ -64,9 +68,40 @@ userSchema.post('save', function (doc, next) {
 
 //instance methode create for using instance
 
-userSchema.methods.isUserExist = async (id: string) => {
-  const existingUser = await User.findOne({ id });
+userSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await User.findOne({ id }).select('+password'); // show er jonno +passworduse kora hoise + na dile only password dibe
   return existingUser;
 };
 
+userSchema.statics.isPasswordMatch = async function (
+  plaintextPassword,
+  hasedPassword,
+) {
+  return await bcrypt.compare(plaintextPassword, hasedPassword);
+};
+
+userSchema.statics.isBlockedUser = async function (user) {
+  const blockuser = (await user.status) === 'blocked';
+  return blockuser;
+};
+
+userSchema.statics.isDeleted = async function (user) {
+  const deletedUser = (await user.isDeleted) === true;
+  return deletedUser;
+};
+
+//async function jodi na lage tahole use kora jabe na use korle wrong info dibe
+userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
+  passwordChangeTimeStamp: Date,
+  jwtIssouedTimestamp: number,
+) {
+  // convart date to number formate
+  //2024-01-06T17:12:54.497Z  ,  1704560502
+  const passwordChangedTime =
+    new Date(passwordChangeTimeStamp).getTime() / 1000;
+  //1704561174.497 ,  1704560502
+  return passwordChangedTime > jwtIssouedTimestamp;
+};
+
 export const User = model<TUser, UsertModel>('User', userSchema);
+
