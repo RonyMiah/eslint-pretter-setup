@@ -2,10 +2,16 @@ import { Schema, model } from 'mongoose';
 import { TUser, UsertModel } from './user.interface';
 import config from '../../config';
 import bcrypt from 'bcrypt';
+import { USER_STATUS } from './user.constant';
 
 const userSchema = new Schema<TUser, UsertModel>(
   {
     id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -25,14 +31,14 @@ const userSchema = new Schema<TUser, UsertModel>(
     role: {
       type: String,
       enum: {
-        values: ['admin', 'student', 'faculty'],
+        values: ['superAdmin', 'admin', 'student', 'faculty'],
         message: `{VALUE} is not valid`,
       },
     },
     status: {
       type: String,
       enum: {
-        values: ['in-progress', 'blocked'],
+        values: USER_STATUS,
         message: `{VALUE} is not valid`,
       },
       default: 'in-progress',
@@ -47,7 +53,7 @@ const userSchema = new Schema<TUser, UsertModel>(
   },
 );
 
-//password before save database hash it
+//Hash Password
 userSchema.pre('save', async function (next) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this;
@@ -58,21 +64,19 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-//when response send the response is empty password how to do this let me show
+//Response Password Empty
 userSchema.post('save', function (doc, next) {
-  //now doc is updated document
-  //after the save document in mongodb and send response empty password
   doc.password = '';
   next();
 });
 
-//instance methode create for using instance
-
+//Static Methode
 userSchema.statics.isUserExists = async function (id: string) {
-  const existingUser = await User.findOne({ id }).select('+password'); // show er jonno +passworduse kora hoise + na dile only password dibe
+  const existingUser = await User.findOne({ id }).select('+password'); //pass + other data
   return existingUser;
 };
 
+//Compair Password 
 userSchema.statics.isPasswordMatch = async function (
   plaintextPassword,
   hasedPassword,
@@ -80,28 +84,28 @@ userSchema.statics.isPasswordMatch = async function (
   return await bcrypt.compare(plaintextPassword, hasedPassword);
 };
 
+//Check User is Already Blocked ?
 userSchema.statics.isBlockedUser = async function (user) {
   const blockuser = (await user.status) === 'blocked';
   return blockuser;
 };
 
+//Check user is Already delete ?
 userSchema.statics.isDeleted = async function (user) {
   const deletedUser = (await user.isDeleted) === true;
   return deletedUser;
 };
 
-//async function jodi na lage tahole use kora jabe na use korle wrong info dibe
+//IF async function not need into function do not use it , other wise wrong info goted ..
 userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
   passwordChangeTimeStamp: Date,
   jwtIssouedTimestamp: number,
 ) {
-  // convart date to number formate
-  //2024-01-06T17:12:54.497Z  ,  1704560502
+  // convart Date to number Formate Like this => 1704560502
+  //2024-01-06T17:12:54.497Z  ==>  1704560502
   const passwordChangedTime =
     new Date(passwordChangeTimeStamp).getTime() / 1000;
-  //1704561174.497 ,  1704560502
   return passwordChangedTime > jwtIssouedTimestamp;
 };
 
 export const User = model<TUser, UsertModel>('User', userSchema);
-

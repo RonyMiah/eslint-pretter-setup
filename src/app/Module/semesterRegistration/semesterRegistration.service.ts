@@ -68,7 +68,8 @@ const getAllSemesterRegistrationFromDB = async (
     .paginate()
     .fields();
   const result = await semesterRegistrationQuery.modelQuery;
-  return result;
+  const meta = await semesterRegistrationQuery.countTotal();
+  return { meta, result };
 };
 
 const getSingleRegistrationFromDB = async (id: string) => {
@@ -185,9 +186,9 @@ const deleteRegistrationFromDB = async (id: string) => {
       return null;
     }
   } catch (error: any) {
-      await session.abortTransaction();
-      await session.endSession();
-      throw new Error(error)
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error(error);
   }
 };
 export const SemesterRegistrationServices = {
@@ -195,5 +196,5 @@ export const SemesterRegistrationServices = {
   getAllSemesterRegistrationFromDB,
   getSingleRegistrationFromDB,
   updateRegistrationFromDB,
-  deleteRegistrationFromDB
+  deleteRegistrationFromDB,
 };

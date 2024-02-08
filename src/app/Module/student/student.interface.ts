@@ -28,7 +28,7 @@ export type TStudent = {
   user: Types.ObjectId;
   password: string;
   name: TUserName;
-  gender: 'maile' | 'femaile' | 'other';
+  gender: 'male' | 'femaile' | 'other';
   dateOfBirth?: string;
   email: string;
   contactNo: string;
@@ -41,22 +41,10 @@ export type TStudent = {
   admissionSemester: Types.ObjectId;
   isDeleted?: boolean;
   academicDepartment: Types.ObjectId;
+  academicFaculty: Types.ObjectId;
 };
 
-//for using static methode Custom made
-
+//for using static methode
 export interface StudentModel extends Model<TStudent> {
   isUserExists(id: string): Promise<TStudent | null>;
 }
-
-//Custom Instance Methode for using instance
-// export type StudentMethode = {
-//   // eslint-disable-next-line no-unused-vars
-//   isUserExist(id: string): Promise<TStudent | null>;
-// };
-
-// export type StudentModel = Model<
-//   TStudent,
-//   Record<string, never>,
-//   StudentMethode
-// >;

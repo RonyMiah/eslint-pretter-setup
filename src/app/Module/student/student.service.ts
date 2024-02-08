@@ -9,14 +9,12 @@ import { studentSearchableFields } from './student.constent';
 import QueryBuilder from '../../builder/QueryBuilder';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-  //   //search field
+  //search field
 
-  //   //{email : {$regex : query.searchTerm , $option: i}}
-  //   //{presentAddress : {$regex : query.searchTerm , $option: i}}
-
-  //   //copy query obj
+  //{email : {$regex : query.searchTerm , $option: i}}
+  //{presentAddress : {$regex : query.searchTerm , $option: i}}
+  //copy query obj
   //   const queryObject = { ...query };
-
   //   let searchTerm = ' ';
   //   if (query.searchTerm) {
   //     searchTerm = query.searchTerm as string;
@@ -27,7 +25,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   //     })),
   //   });
 
-  //   //Filtaring delete [] element
+  //Filtaring delete [] element
   //   ['searchTerm', 'page', 'sort', 'limit', 'fields'].forEach(
   //     (ele) => delete queryObject[ele],
   //   );
@@ -42,14 +40,14 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   //       },
   //     });
 
-  //   //sort
+  //sort
   //   let sort = '-createdAt';
   //   if (query.sort) {
   //     sort = query?.sort as string;
   //   }
   //   const sortQuery = filterQuery.sort(sort);
 
-  //   //limit
+  //limit
   //   let page = 1;
   //   let limit = 1;
   //   let skip = 0;
@@ -63,24 +61,27 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   //   if (query.skip) {
   //     skip = (page - 1) * limit;
   //   }
-  //   //page query
+
+  //page query
   //   const pageQuery = sortQuery.skip(skip);
-  //   //limit query
+
+  //limit query
   //   const limitQuery = pageQuery.limit(limit);
 
-  //   //fields limiting
-  //   // fields: 'name,email' convart to ....   firlds: name email  ..
+  //fields limiting
+  // fields: 'name,email' convart to ....   firlds: name email  ..
   //   let fields = '-__v';
   //   if (query.fields) {
   //     fields = (query.fields as string).split(',').join(' ');
   //   }
-  // //fields er bitore 2 ta value thakle amra select query use korbo
-  // //jei fields show kora dorkar sei fields er jonno select use korte pari
-  // //bandwidth cost komanor jonno .select methode use korte pari
+
+  //fields er bitore 2 ta value thakle amra select query use korbo
+  //jei fields show kora dorkar sei fields er jonno select use korte pari
+  //bandwidth cost komanor jonno .select methode use korte pari
   //   const fieldQuery = await limitQuery.select(fields);
 
-  //   // console.log('base query', query);
-  //   // console.log(queryObject);
+  // console.log('base query', query);
+  // console.log(queryObject);
 
   //   return fieldQuery;
 
@@ -88,12 +89,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     Student.find()
       .populate('user')
       .populate('admissionSemester')
-      .populate({
-        path: 'academicDepartment',
-        populate: {
-          path: 'academicFaculty',
-        },
-      }),
+      .populate('academicDepartment academicFaculty'),
     query,
   )
     .search(studentSearchableFields)
@@ -103,7 +99,11 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     .fields();
 
   const result = await studentQuery.modelQuery;
-  return result;
+  const meta = await studentQuery.countTotal();
+  return {
+    meta,
+    result,
+  };
 };
 
 const getAStudentFromDB = async (id: string) => {
@@ -111,7 +111,6 @@ const getAStudentFromDB = async (id: string) => {
 
   //using aggregate
   // const result = await Student.aggregate([
-  //   //stage -1
   //   { $match: { id: id } },
   // ]);
 

@@ -24,10 +24,13 @@ const createLocalGuardianValidationSchema = z.object({
 
 export const createStudentValidationSchema = z.object({
   body: z.object({
-    password: z.string({ invalid_type_error: 'Password is required' }).max(20),
+    password: z
+      .string({ invalid_type_error: 'Password is required' })
+      .max(20)
+      .optional(),
     student: z.object({
       name: createUserNameValidationSchema,
-      gender: z.enum(['maile', 'femaile', 'other']),
+      gender: z.enum(['male', 'femaile', 'other']),
       dateOfBirth: z.string().optional(),
       email: z.string().email(),
       contactNo: z.string(),
@@ -37,7 +40,6 @@ export const createStudentValidationSchema = z.object({
       guardian: createGuardianValidationSchema,
       localGuardian: createLocalGuardianValidationSchema,
       admissionSemester: z.string(),
-      profileImg: z.string(),
       academicDepartment: z.string(),
     }),
   }),

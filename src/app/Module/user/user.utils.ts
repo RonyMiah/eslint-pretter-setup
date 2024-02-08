@@ -1,4 +1,3 @@
-//eita sodo user er sathe releted jer karone amra user folder er bitore declar korlam
 
 import { TAcademicSemester } from '../academicSemester/academicsemester.interface';
 import { User } from './user.model';
@@ -9,8 +8,6 @@ const findLastStudentId = async () => {
       role: 'student',
     },
     {
-      //fill filtaring which data is shown
-
       id: 1, // we need id not need _id
       _id: 0,
     },

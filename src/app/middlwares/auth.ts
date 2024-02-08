@@ -15,10 +15,17 @@ const auth = (...requiredRoles: TUserRole[]) => {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
     }
     //check user send verify token or wrong token
-    const decoded = jwt.verify(
-      token,
-      config.jwt_access_secret as string,
-    ) as JwtPayload;
+
+    let decoded;
+
+    try {
+      decoded = jwt.verify(
+        token,
+        config.jwt_access_secret as string,
+      ) as JwtPayload;
+    } catch (error) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'Unauthorized');
+    }
 
     //check role admin or student or faculty
     const { role, userId, iat } = decoded;
@@ -60,7 +67,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
     ) {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not Authotized ! ');
     }
-    
+
     //check required Roles for perametter value
     if (requiredRoles && !requiredRoles.includes(role)) {
       throw new AppError(

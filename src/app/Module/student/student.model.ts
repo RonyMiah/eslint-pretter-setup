@@ -81,14 +81,16 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: Schema.Types.ObjectId,
       required: true,
       unique: true,
-      ref: 'User', // ei User holo Model er user
+      ref: 'User', // it's Model User
     },
-    // password: { type: String, required: [true, 'password is required'] },
-    name: { type: userNameSchema, required: [true, 'Name is required '] }, // You might need to adjust this based on your actual use case
+    name: {
+      type: userNameSchema,
+      required: [true, 'Name is required '],
+    },
     gender: {
       type: String,
       enum: {
-        values: ['maile', 'femaile', 'other'],
+        values: ['male', 'femaile', 'other'],
         message: '{VALUE} is not valid gender',
       },
       required: [true, 'Gender is required'],
@@ -121,7 +123,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: localGuradianSchema,
       required: [true, 'Guardian information is required'],
     },
-    profileImg: { type: String },
+    profileImg: { type: String, default: '' },
     admissionSemester: {
       type: Schema.Types.ObjectId,
       ref: 'AcademicSemester',
@@ -133,6 +135,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       ref: 'AcademicDepartment',
       required: true,
     },
+    academicFaculty: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicFaculty',
+    },
   },
   {
     toJSON: {
@@ -140,14 +146,11 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     },
   },
 );
-//static methode create
-//jeheto amra async function use korse so Student data pawyer jonno sheee wait korbe
 
+//static methode create
 //Query Middleware
 studentSchema.pre('find', function (next) {
-  // all student find korer age check korbe isDeleted is true or false if isDeleted is false then show data other wise don't show data
-
-  //find data >> not eqall true thats men false
+  //find data >> isDeleted  false
   this.find({ isDeleted: { $ne: true } });
   next();
 });
@@ -180,7 +183,6 @@ studentSchema.statics.isUserExists = async (id: string) => {
 };
 
 //instance methode create for using instance
-
 studentSchema.methods.isUserExist = async (id: string) => {
   const existingUser = await Student.findOne({ id });
   return existingUser;

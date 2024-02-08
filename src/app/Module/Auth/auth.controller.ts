@@ -10,6 +10,8 @@ const logedinUser = catchAsync(async (req, res) => {
   res.cookie('refreshToken', refreshToken, {
     secure: config.NODE_ENV === 'production',
     httpOnly: true,
+    sameSite: 'none', // fontend and back end difarence domain thakle none use korbo
+    maxAge: 1000 * 60 * 60 * 24 * 365,
   });
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -41,9 +43,31 @@ const refreshToken = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const forgetPassword = catchAsync(async (req, res) => {
+  const userId = req.body.id;
+  const result = await AuthServices.forgetPassword(userId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Reset Link is Generated Successfully !',
+    data: result,
+  });
+});
+const resetPassword = catchAsync(async (req, res) => {
+  const token = req.headers.authorization;
+  const result = await AuthServices.resetPassword(req.body, token as string);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Password Reset Successfull',
+    data: result,
+  });
+});
 
 export const AuthControllers = {
   logedinUser,
   changePassword,
   refreshToken,
+  forgetPassword,
+  resetPassword,
 };
